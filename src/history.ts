@@ -37,4 +37,13 @@ export class HistoryStack {
     this.past = [];
     this.future = [];
   }
+
+  dump(): { past: string[]; future: string[] } {
+    return { past: [...this.past], future: [...this.future] };
+  }
+
+  load(data: { past: string[]; future: string[] } | null | undefined): void {
+    this.past = data?.past ? [...data.past] : [];
+    this.future = data?.future ? [...data.future] : [];
+  }
 }

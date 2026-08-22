@@ -50,23 +50,13 @@ function drawText(ctx: CanvasRenderingContext2D, layer: TextLayer): void {
   }
 }
 
-export async function exportDocument(
-  doc: PhotoDoc,
-  kind: ExportKind,
-): Promise<{ blob: Blob; filename: string }> {
-  const width = mmToPx(doc.widthMm, doc.dpi);
-  const height = mmToPx(doc.heightMm, doc.dpi);
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas nicht verfügbar");
-
-  await document.fonts.ready;
+export function drawDocument(doc: PhotoDoc, ctx: CanvasRenderingContext2D, scale = 1): void {
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, width, height);
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
+  ctx.save();
+  ctx.scale(scale, scale);
 
   for (const layer of doc.layers) {
     if (!layer.visible) continue;
@@ -96,6 +86,22 @@ export async function exportDocument(
     }
     ctx.restore();
   }
+  ctx.restore();
+}
+
+export async function exportDocument(
+  doc: PhotoDoc,
+  kind: ExportKind,
+): Promise<{ blob: Blob; filename: string }> {
+  const width = mmToPx(doc.widthMm, doc.dpi);
+  const height = mmToPx(doc.heightMm, doc.dpi);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas nicht verfügbar");
+  await document.fonts.ready;
+  drawDocument(doc, ctx, 1);
 
   const mime = kind === "png" ? "image/png" : "image/jpeg";
   const quality = kind === "jpeg" ? 0.92 : undefined;
@@ -110,6 +116,22 @@ export async function exportDocument(
   const ext = kind === "png" ? "png" : "jpg";
   const filename = `${slugify(doc.providerName)}-${slugify(doc.formatLabel)}-${timestampForFile()}.${ext}`;
   return { blob, filename };
+}
+
+export async function thumbnailBlob(doc: PhotoDoc, maxEdge = 160): Promise<Blob | null> {
+  const width = mmToPx(doc.widthMm, doc.dpi);
+  const height = mmToPx(doc.heightMm, doc.dpi);
+  if (width < 1 || height < 1) return null;
+  const scale = Math.min(maxEdge / width, maxEdge / height);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(width * scale));
+  canvas.height = Math.max(1, Math.round(height * scale));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  drawDocument(doc, ctx, scale);
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
+  });
 }
 
 export function downloadBlob(blob: Blob, filename: string): void {

@@ -3,6 +3,7 @@ export type ImageAsset = {
   image: HTMLImageElement;
   url: string;
   name: string;
+  blob: Blob;
 };
 
 const assets = new Map<string, ImageAsset>();
@@ -28,6 +29,31 @@ export function pruneAssets(keepIds: Iterable<string>): void {
   }
 }
 
+export function storedBlobs(): { id: string; name: string; blob: Blob }[] {
+  return [...assets.values()].map((asset) => ({
+    id: asset.id,
+    name: asset.name,
+    blob: asset.blob,
+  }));
+}
+
+export function loadImageFromBlob(blob: Blob, name: string, id?: string): Promise<ImageAsset> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
+    image.onload = () => {
+      const asset: ImageAsset = { id: id ?? crypto.randomUUID(), image, url, name, blob };
+      assets.set(asset.id, asset);
+      resolve(asset);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Bild konnte nicht geladen werden"));
+    };
+    image.src = url;
+  });
+}
+
 export function loadImageFile(file: File): Promise<ImageAsset> {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith("image/")) {
@@ -43,6 +69,7 @@ export function loadImageFile(file: File): Promise<ImageAsset> {
         image,
         url,
         name: file.name.replace(/\.[^.]+$/, "") || "Bild",
+        blob: file,
       };
       assets.set(id, asset);
       resolve(asset);

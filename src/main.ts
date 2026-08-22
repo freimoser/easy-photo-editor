@@ -1,5 +1,12 @@
 import "./style.css";
-import { clearAssets, forgetAsset, loadImageFile, pruneAssets } from "./assets";
+import {
+  clearAssets,
+  forgetAsset,
+  loadImageFile,
+  loadImageFromBlob,
+  pruneAssets,
+  storedBlobs,
+} from "./assets";
 import { swatchStackHtml } from "./colors";
 import {
   defaultTextLayer,
@@ -8,7 +15,7 @@ import {
   PhotoStage,
   type Geometry,
 } from "./editor";
-import { downloadBlob, exportDocument } from "./export";
+import { downloadBlob, exportDocument, thumbnailBlob } from "./export";
 import {
   CUSTOM_FORMAT_ID,
   DPI,
@@ -22,6 +29,15 @@ import {
   type PrintFormat,
 } from "./formats";
 import { HistoryStack } from "./history";
+import {
+  clearSession,
+  getVersion,
+  listVersions,
+  loadAssets,
+  loadSession,
+  saveSession,
+  saveVersion,
+} from "./storage";
 import type { ImageLayer, Layer, PhotoDoc, TextLayer } from "./types";
 import {
   fromMm,
@@ -63,6 +79,14 @@ const customUnitEl = document.querySelector<HTMLSelectElement>("#custom-unit")!;
 const customDpiEl = document.querySelector<HTMLInputElement>("#custom-dpi")!;
 const customSwap = document.querySelector<HTMLButtonElement>("#custom-swap")!;
 const customPreview = document.querySelector<HTMLParagraphElement>("#custom-preview")!;
+const resumePanel = document.querySelector<HTMLElement>("#resume-panel")!;
+const resumeBlurb = document.querySelector<HTMLElement>("#resume-blurb")!;
+const resumeBtn = document.querySelector<HTMLButtonElement>("#resume-btn")!;
+const resumeDiscard = document.querySelector<HTMLButtonElement>("#resume-discard")!;
+const btnVersions = document.querySelector<HTMLButtonElement>("#btn-versions")!;
+const versionsEl = document.querySelector<HTMLDivElement>("#versions")!;
+const versionList = document.querySelector<HTMLUListElement>("#version-list")!;
+const versionsClose = document.querySelector<HTMLButtonElement>("#versions-close")!;
 
 let providerId = providers[0].id;
 let formatId = providers[0].formats[1]?.id ?? providers[0].formats[0].id;
@@ -73,6 +97,10 @@ let doc: PhotoDoc | null = null;
 const history = new HistoryStack();
 let stage: PhotoStage | null = null;
 let toastTimer = 0;
+let persistTimer = 0;
+let versionTimer = 0;
+let lastVersionKey = "";
+let restoring = false;
 
 function toast(message: string): void {
   toastEl.textContent = message;
@@ -89,6 +117,112 @@ function checkpoint(): void {
   if (!doc) return;
   history.push(cloneLayers(doc.layers));
   syncChrome();
+}
+
+function editorIsOpen(): boolean {
+  return Boolean(doc) && !editorEl.classList.contains("hidden");
+}
+
+function sessionPayload() {
+  return {
+    inEditor: editorIsOpen(),
+    doc,
+    providerId,
+    formatId,
+    custom: {
+      w: customW.value,
+      h: customH.value,
+      unit: customUnitEl.value as LengthUnit,
+      dpi: customDpiEl.value,
+    },
+    autoResizeDefault,
+    keptTemplate,
+    history: history.dump(),
+    savedAt: Date.now(),
+  };
+}
+
+async function persistNow(): Promise<void> {
+  if (restoring) return;
+  try {
+    await saveSession(sessionPayload(), storedBlobs());
+  } catch (err) {
+    console.warn("Cache speichern fehlgeschlagen", err);
+  }
+}
+
+function schedulePersist(): void {
+  window.clearTimeout(persistTimer);
+  persistTimer = window.setTimeout(() => void persistNow(), 350);
+}
+
+function scheduleVersion(): void {
+  if (!doc || restoring) return;
+  window.clearTimeout(versionTimer);
+  versionTimer = window.setTimeout(() => void snapshotVersion(), 1600);
+}
+
+async function snapshotVersion(label?: string): Promise<void> {
+  const current = doc;
+  if (!current || restoring) return;
+  const key = JSON.stringify(current.layers);
+  if (key === lastVersionKey) return;
+  lastVersionKey = key;
+  try {
+    const copy = JSON.parse(JSON.stringify(current)) as PhotoDoc;
+    const thumb = await thumbnailBlob(current);
+    await saveVersion({
+      id: crypto.randomUUID(),
+      savedAt: Date.now(),
+      label: label ?? "Stand",
+      doc: copy,
+      thumb,
+    });
+  } catch (err) {
+    console.warn("Verlauf speichern fehlgeschlagen", err);
+  }
+}
+
+async function hydrateBlobs(): Promise<void> {
+  const records = await loadAssets();
+  await Promise.all(
+    records.map((rec) => loadImageFromBlob(rec.blob, rec.name, rec.id).catch(() => undefined)),
+  );
+}
+
+function applySessionMeta(session: Awaited<ReturnType<typeof loadSession>>): void {
+  if (!session) return;
+  providerId = session.providerId;
+  formatId = session.formatId;
+  customW.value = session.custom.w;
+  customH.value = session.custom.h;
+  customUnitEl.value = session.custom.unit;
+  customDpiEl.value = session.custom.dpi;
+  lastCustomUnit = session.custom.unit;
+  autoResizeDefault = session.autoResizeDefault;
+  keptTemplate = session.keptTemplate;
+  history.load(session.history);
+}
+
+async function resumeSession(session?: Awaited<ReturnType<typeof loadSession>> | null): Promise<boolean> {
+  session = session ?? (await loadSession());
+  if (!session?.doc) return false;
+  restoring = true;
+  try {
+    await hydrateBlobs();
+    applySessionMeta(session);
+    doc = session.doc;
+    lastVersionKey = JSON.stringify(doc.layers);
+    enterEditor();
+    toast("Sitzung aus dem Cache wiederhergestellt");
+    return true;
+  } catch (err) {
+    console.warn(err);
+    toast("Cache konnte nicht geladen werden");
+    return false;
+  } finally {
+    restoring = false;
+  }
 }
 
 function pageSize(current: PhotoDoc): { w: number; h: number } {
@@ -255,6 +389,10 @@ function openEditor(): void {
   } else {
     clearAssets();
   }
+  enterEditor();
+}
+
+function enterEditor(): void {
   setupEl.classList.add("hidden");
   editorEl.classList.remove("hidden");
   if (!stage) {
@@ -275,6 +413,7 @@ function openEditor(): void {
   requestAnimationFrame(() => {
     stage?.resize();
     paint();
+    void persistNow();
   });
 }
 
@@ -327,8 +466,9 @@ function confirmDiscardUnpinned(): boolean {
   return window.confirm(message);
 }
 
-function closeEditor(): void {
+async function closeEditor(): Promise<void> {
   if (doc && doc.layers.some((layer) => !layer.keep) && !confirmDiscardUnpinned()) return;
+  await snapshotVersion("Vor Startseite");
   rememberKeptLayers();
   history.clear();
   if (keptTemplate) pruneAssets(usedAssetIds(keptTemplate.layers));
@@ -336,11 +476,14 @@ function closeEditor(): void {
   doc = null;
   editorEl.classList.add("hidden");
   setupEl.classList.remove("hidden");
+  resumePanel.classList.add("hidden");
+  void persistNow();
 }
 
-function newPhotoSameSettings(): void {
+async function newPhotoSameSettings(): Promise<void> {
   if (!doc) return;
   if (doc.layers.some((layer) => !layer.keep) && !confirmDiscardUnpinned()) return;
+  await snapshotVersion("Vor Gleiches Format");
   const kept = doc.layers.filter((layer) => layer.keep);
   const next: PhotoDoc = {
     providerId: doc.providerId,
@@ -361,6 +504,7 @@ function newPhotoSameSettings(): void {
   stage?.cancelInteraction();
   paint();
   toast(kept.length ? `Gleiches Format, ${kept.length} Ebenen behalten` : "Gleiches Format, leere Fläche");
+  void persistNow();
 }
 
 function autoFitImage(layer: ImageLayer): void {
@@ -406,6 +550,8 @@ function paint(): void {
   syncChrome();
   renderLayers();
   renderProps();
+  schedulePersist();
+  scheduleVersion();
 }
 
 function syncChrome(): void {
@@ -821,6 +967,8 @@ async function doExport(kind: "jpeg" | "png"): Promise<void> {
     const { blob, filename } = await exportDocument(doc, kind);
     downloadBlob(blob, filename);
     toast(`${filename} gespeichert`);
+    void persistNow();
+    void snapshotVersion("Export");
   } catch (err) {
     console.error(err);
     toast("Export fehlgeschlagen");
@@ -876,6 +1024,10 @@ function onKey(e: KeyboardEvent): void {
     deleteSelected();
   }
   if (e.key === "Escape") {
+    if (!versionsEl.classList.contains("hidden")) {
+      versionsEl.classList.add("hidden");
+      return;
+    }
     doc.selectedId = null;
     paint();
   }
@@ -928,8 +1080,8 @@ customSwap.addEventListener("click", () => {
 });
 
 startBtn.addEventListener("click", openEditor);
-btnNew.addEventListener("click", closeEditor);
-btnSame.addEventListener("click", newPhotoSameSettings);
+btnNew.addEventListener("click", () => void closeEditor());
+btnSame.addEventListener("click", () => void newPhotoSameSettings());
 btnSafe.addEventListener("click", () => {
   if (!doc) return;
   doc.showSafeZone = !doc.showSafeZone;
@@ -964,4 +1116,87 @@ workspace.addEventListener("dragover", (e) => {
 workspace.addEventListener("dragleave", () => workspace.classList.remove("dragover"));
 workspace.addEventListener("drop", onDrop);
 
-renderSetup();
+window.addEventListener("beforeunload", (e) => {
+  if (!editorIsOpen()) return;
+  void persistNow();
+  e.preventDefault();
+  e.returnValue = "";
+});
+window.addEventListener("pagehide", () => void persistNow());
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") void persistNow();
+});
+
+async function renderVersionList(): Promise<void> {
+  const items = await listVersions();
+  versionList.innerHTML = "";
+  if (items.length === 0) {
+    versionList.innerHTML = `<li class="version-item"><span>Noch keine Stände gespeichert.</span></li>`;
+    return;
+  }
+  for (const item of items) {
+    const li = document.createElement("li");
+    li.className = "version-item";
+    const when = new Date(item.savedAt).toLocaleString("de-DE", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const img = item.thumb ? URL.createObjectURL(item.thumb) : "";
+    li.innerHTML = `${img ? `<img src="${img}" alt="" />` : "<span></span>"}<div><strong>${item.label}</strong><small>${when} · ${item.doc.layers.length} Ebenen</small></div>`;
+    li.addEventListener("click", () => void restoreVersion(item.id));
+    versionList.appendChild(li);
+  }
+}
+
+async function restoreVersion(id: string): Promise<void> {
+  const record = await getVersion(id);
+  if (!record || !doc) return;
+  const ok = window.confirm("Diesen Stand wiederherstellen? Der aktuelle Stand bleibt im Verlauf.");
+  if (!ok) return;
+  void snapshotVersion("Vor Wiederherstellung");
+  await hydrateBlobs();
+  doc = record.doc;
+  lastVersionKey = JSON.stringify(doc.layers);
+  versionsEl.classList.add("hidden");
+  paint();
+  toast("Stand aus dem Verlauf geladen");
+  void persistNow();
+}
+
+btnVersions.addEventListener("click", () => {
+  const open = versionsEl.classList.toggle("hidden") === false;
+  if (open) void renderVersionList();
+});
+versionsClose.addEventListener("click", () => versionsEl.classList.add("hidden"));
+
+resumeBtn.addEventListener("click", () => void resumeSession());
+resumeDiscard.addEventListener("click", () => {
+  void clearSession();
+  resumePanel.classList.add("hidden");
+  toast("Cache-Sitzung verworfen");
+});
+
+async function boot(): Promise<void> {
+  renderSetup();
+  try {
+    const session = await loadSession();
+    if (!session) return;
+    applySessionMeta(session);
+    renderSetup();
+    if (session.inEditor && session.doc) {
+      await resumeSession(session);
+      return;
+    }
+    if (session.doc && session.doc.layers.length > 0) {
+      resumePanel.classList.remove("hidden");
+      const when = new Date(session.savedAt).toLocaleString("de-DE");
+      resumeBlurb.textContent = `Gespeichert ${when} · ${session.doc.layers.length} Ebenen. Nichts wurde hochgeladen.`;
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+void boot();

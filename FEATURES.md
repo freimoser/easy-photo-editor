@@ -14,6 +14,7 @@ Stand: 2026-08-23
 4. Bilder per Drag & Drop, **Bilder**-Button oder **Strg+V** einfügen. Text über **Text**.
 5. Ebenen rechts: Reihenfolge, sichtbar, sperren, **★ behalten**. Fotos drehen, skalieren, umranden.
 6. **JPEG** (Standard, Druck) oder **PNG** herunterladen. **Gleiches Format** startet das nächste Foto; **★**-Ebenen bleiben. **Neues Foto** geht zur Startseite, markierte Ebenen kommen mit.
+7. Arbeit bleibt im **Browser-Cache** (IndexedDB). Tab schließen fragt nach. **Verlauf** zeigt frühere Stände.
 
 ## Funktionen
 
@@ -29,6 +30,8 @@ Stand: 2026-08-23
 - Umrandung: Stärke in mm, Farbe aus Palette, Picker oder Hex
 - Rückgängig / Wiederholen
 - Export JPEG Qualität 0,92 oder PNG, Dateiname mit Anbieter und Format
+- Verlauf: frühere Stände lokal merken und wiederherstellen
+- Cache: Sitzung und Bilder im Browser speichern, Warnung beim Schließen
 - Läuft nur im Browser, keine Uploads, keine Cloud
 
 ## Bewusst nicht auf der Startseite versprechen
@@ -36,4 +39,4 @@ Stand: 2026-08-23
 - HEIC / iPhone-Rohformat
 - Handy-Bedienung
 - Mehrseitiges Fotobuch
-- Speichern eines Projekts auf einem Server
+- Speichern eines Projekts in der Cloud / auf einem Server (nur lokal im Browser)
