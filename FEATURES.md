@@ -22,11 +22,11 @@ Stand: 2026-08-23
 - Safe Zone (3 mm, nur Anzeige)
 - Einpassen: beim Einfügen und bei 90°-Drehung aufs Format skalieren (abschaltbar)
 - Bilder: Drag & Drop, Datei-Dialog, Zwischenablage (JPEG, PNG, WebP, GIF — kein HEIC)
-- Text: schreiben (Doppelklick), Größe, Farbe
+- Text: schreiben (Doppelklick), Größe, Farbe aus Palette, Picker oder Hex
 - Ebenen: nach vorne/hinten, ziehen, ein-/ausblenden, sperren, duplizieren, löschen
 - ★ Behalten: Ebene überlebt Gleiches Format und Neues Foto
 - Transformieren: verschieben, Ecken skalieren, frei drehen, 90°/180°-Buttons
-- Umrandung: Stärke in mm, Farbe per Picker oder Hex
+- Umrandung: Stärke in mm, Farbe aus Palette, Picker oder Hex
 - Rückgängig / Wiederholen
 - Export JPEG Qualität 0,92 oder PNG, Dateiname mit Anbieter und Format
 - Läuft nur im Browser, keine Uploads, keine Cloud

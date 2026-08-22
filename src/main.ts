@@ -1,5 +1,6 @@
 import "./style.css";
 import { clearAssets, forgetAsset, loadImageFile, pruneAssets } from "./assets";
+import { swatchStackHtml } from "./colors";
 import {
   defaultTextLayer,
   fitImageToPage,
@@ -562,6 +563,7 @@ function renderProps(): void {
             <option value="5" ${layer.strokeWidthMm === 5 ? "selected" : ""}>5 mm</option>
           </select>
         </label>
+        ${swatchStackHtml(toHex(layer.stroke))}
         <div class="stroke-color">
           <label class="color-chip" title="Linienfarbe">
             <input id="stroke-color" type="color" value="${toHex(layer.stroke)}" />
@@ -581,6 +583,7 @@ function renderProps(): void {
             <input id="prop-fill" type="color" value="${toHex(layer.fill)}" />
           </label>
         </div>
+        ${swatchStackHtml(toHex(layer.fill))}
         <p class="prop-hint">Doppelklick auf den Text zum Schreiben.</p>`
       : "";
 
@@ -621,6 +624,20 @@ function renderProps(): void {
     if (layer.type !== "image") return;
     checkpoint();
     paint();
+  });
+  propsEl.querySelectorAll<HTMLButtonElement>(".swatch").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const hex = btn.dataset.color;
+      if (!hex) return;
+      checkpoint();
+      if (layer.type === "image") {
+        layer.stroke = hex;
+        if (layer.strokeWidthMm === 0) layer.strokeWidthMm = 1;
+      } else {
+        layer.fill = hex;
+      }
+      paint();
+    });
   });
   propsEl.querySelector("#stroke-hex")?.addEventListener("change", (e) => {
     if (layer.type !== "image") return;

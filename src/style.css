@@ -603,6 +603,32 @@ kbd {
   cursor: pointer;
 }
 
+.swatch-stack {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin: 0 0 10px;
+}
+
+.swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatch.selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .stroke-color {
   display: grid;
   grid-template-columns: auto 1fr;
