@@ -202,7 +202,6 @@ export class PhotoStage {
   }
 
   setSelection(id: string | null): void {
-    if (this.interacting) return;
     this.attachTransformer(id);
     this.overlayLayer.batchDraw();
   }
@@ -326,10 +325,11 @@ export class PhotoStage {
       this.stage.container().style.cursor = "default";
     });
     node.on("mousedown touchstart", () => {
-      this.interacting = true;
       const layer = this.doc?.layers.find((item) => item.id === id);
       if (!layer || layer.locked || !layer.visible) return;
       this.handlers.onSelect(id);
+      this.attachTransformer(id);
+      this.overlayLayer.batchDraw();
     });
     node.on("dragstart transformstart", () => {
       this.interacting = true;
@@ -371,14 +371,11 @@ export class PhotoStage {
   }
 
   private attachTransformer(selectedId: string | null): void {
-    const current = this.transformer.nodes()[0];
-    if (selectedId && current?.getAttr("layerId") === selectedId && current.getLayer()) return;
-
     if (!selectedId) {
       this.transformer.nodes([]);
       return;
     }
-    const node = this.pageGroup.findOne((n: Konva.Node) => n.getAttr("layerId") === selectedId);
+    const node = this.nodeById().get(selectedId);
     if (!node || !node.visible() || node.getAttr("draggable") === false) {
       this.transformer.nodes([]);
       return;
@@ -400,6 +397,7 @@ export class PhotoStage {
           ],
     );
     this.transformer.nodes([node]);
+    this.transformer.forceUpdate();
   }
 
   private openTextEditor(id: string, node: Konva.Text): void {
