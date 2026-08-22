@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Easy Photo Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="setup" class="view">
+      <header class="setup-top">
+        <p class="eyebrow">Print layout</p>
+        <h1>Easy Photo Editor</h1>
+        <p class="lede">
+          Format wählen, Bilder und Text auf die Fläche legen, als JPEG fürs Labor speichern.
+        </p>
+      </header>
+
+      <section class="panel" id="how">
+        <h2>So geht’s</h2>
+        <ol class="how-list">
+          <li>Anbieter wählen (Default, dm oder Photobook).</li>
+          <li>
+            Format wählen oder unter <strong>Eigenes Format</strong> Breite, Höhe, Einheit (cm / mm /
+            Zoll / Pixel) und DPI setzen.
+          </li>
+          <li><strong>Foto anlegen</strong> — weiße Fläche in Druckgröße (300 DPI bei Presets).</li>
+          <li>
+            Bilder per Drag &amp; Drop, <strong>Bilder</strong>-Button oder <kbd>Strg</kbd>+<kbd>V</kbd>
+            einfügen. Text über <strong>Text</strong>.
+          </li>
+          <li>
+            Ebenen rechts: Reihenfolge, sichtbar, sperren, <strong>★ behalten</strong>. Fotos drehen,
+            skalieren, umranden.
+          </li>
+          <li>
+            <strong>JPEG</strong> (Standard, Druck) oder <strong>PNG</strong> herunterladen.
+            <strong>Gleiches Format</strong> startet das nächste Foto; ★-Ebenen bleiben.
+            <strong>Neues Foto</strong> geht zur Startseite, markierte Ebenen kommen mit.
+          </li>
+        </ol>
+      </section>
+
+      <section class="panel" id="features">
+        <h2>Funktionen</h2>
+        <ul class="feature-list">
+          <li>Anbieter-Presets: Default, dm, Photobook (inkl. 4R)</li>
+          <li>Eigenes Maß in cm, mm, Zoll oder Pixel plus DPI; Hoch/Quer tauschen</li>
+          <li>Safe Zone (3 mm, nur Anzeige)</li>
+          <li>Einpassen: beim Einfügen und bei 90°-Drehung aufs Format skalieren (abschaltbar)</li>
+          <li>Bilder: Drag &amp; Drop, Datei-Dialog, Zwischenablage (JPEG, PNG, WebP, GIF — kein HEIC)</li>
+          <li>Text: schreiben (Doppelklick), Größe, Farbe</li>
+          <li>Ebenen: nach vorne/hinten, ziehen, ein-/ausblenden, sperren, duplizieren, löschen</li>
+          <li>★ Behalten: Ebene überlebt Gleiches Format und Neues Foto</li>
+          <li>Transformieren: verschieben, Ecken skalieren, frei drehen, 90°/180°-Buttons</li>
+          <li>Umrandung: Stärke in mm, Farbe per Picker oder Hex</li>
+          <li>Rückgängig / Wiederholen</li>
+          <li>Export JPEG Qualität 0,92 oder PNG</li>
+          <li>Läuft nur im Browser — keine Uploads, keine Cloud</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Anbieter</h2>
+        <div id="provider-list" class="provider-list"></div>
+        <p id="provider-blurb" class="blurb"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Format</h2>
+        <div id="format-list" class="format-list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Eigenes Format</h2>
+        <p class="blurb">Beliebiges Maß in cm, mm, Zoll oder Pixel. DPI bestimmt die Druckauflösung.</p>
+        <div class="custom-grid">
+          <label>Breite
+            <input id="custom-w" type="number" min="0.1" step="any" value="15" />
+          </label>
+          <label>Höhe
+            <input id="custom-h" type="number" min="0.1" step="any" value="10" />
+          </label>
+          <label>Einheit
+            <select id="custom-unit">
+              <option value="cm">cm</option>
+              <option value="mm">mm</option>
+              <option value="in">Zoll (in)</option>
+              <option value="px">Pixel</option>
+            </select>
+          </label>
+          <label>DPI
+            <input id="custom-dpi" type="number" min="72" max="600" step="1" value="300" />
+          </label>
+        </div>
+        <div class="custom-tools">
+          <button id="custom-swap" class="btn ghost" type="button">Hoch / Quer tauschen</button>
+          <p id="custom-preview" class="hint"></p>
+        </div>
+      </section>
+
+      <div class="setup-actions">
+        <button id="start-btn" class="btn primary" type="button">Foto anlegen</button>
+        <p class="hint">Safe Zone 3 mm · Desktop</p>
+      </div>
+
+      <footer class="site-footer">
+        <a href="./impressum.html">Impressum</a>
+        <a href="./datenschutz.html">Datenschutz</a>
+      </footer>
+    </div>
+
+    <div id="editor" class="view hidden">
+      <header class="editor-bar">
+        <div class="brand-mini">
+          <span class="logo-mark">EPE</span>
+          <div>
+            <strong id="doc-title">Foto</strong>
+            <small id="doc-meta"></small>
+          </div>
+        </div>
+        <div class="bar-actions">
+          <button id="btn-safe" class="btn ghost" type="button" aria-pressed="true">Safe Zone</button>
+          <button
+            id="btn-autoresize"
+            class="btn ghost"
+            type="button"
+            aria-pressed="true"
+            title="Beim Einfügen und Drehen aufs Format einpassen"
+          >
+            Einpassen
+          </button>
+          <button id="btn-undo" class="btn ghost" type="button" title="Strg+Z">Rückgängig</button>
+          <button id="btn-redo" class="btn ghost" type="button" title="Strg+Shift+Z">Wiederholen</button>
+          <button id="btn-images" class="btn" type="button">Bilder</button>
+          <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+          <button id="btn-text" class="btn" type="button">Text</button>
+          <button id="btn-jpeg" class="btn primary" type="button">JPEG</button>
+          <button id="btn-png" class="btn" type="button">PNG</button>
+          <button id="btn-same" class="btn" type="button" title="Leere Fläche, gleiches Format">
+            Gleiches Format
+          </button>
+          <button id="btn-new" class="btn danger-ghost" type="button">Neues Foto</button>
+        </div>
+      </header>
+
+      <div class="editor-body">
+        <div class="workspace" id="workspace">
+          <div id="stage"></div>
+          <div id="drop-hint" class="drop-hint">
+            Bilder hierher ziehen oder <kbd>Strg</kbd>+<kbd>V</kbd>
+          </div>
+        </div>
+        <aside class="sidebar">
+          <div class="sidebar-head">
+            <h2>Ebenen</h2>
+            <p>★ bleibt bei neuem Foto. Oben liegt vorne.</p>
+          </div>
+          <ul id="layer-list" class="layer-list"></ul>
+          <div id="props" class="props hidden"></div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
