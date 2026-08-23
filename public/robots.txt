@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://freemoser.github.io/easy-photo-editor/sitemap.xml

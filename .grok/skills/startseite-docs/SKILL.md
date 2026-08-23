@@ -14,7 +14,7 @@ Jede Änderung, die ein Nutzer auf der Startseite oder im Editor sieht: neue But
 ## Ablauf
 
 1. `FEATURES.md` aktualisieren (So geht’s, Funktionen, „nicht versprechen“, Datum).
-2. Dieselben Fakten in `index.html` in `#how` und `#features` spiegeln. Keine extra Marketing-Sätze, die nicht in `FEATURES.md` stehen.
+2. Dieselben Fakten in `app.html` in `#how` und `#features` spiegeln. `index.html` bleibt die kurze Landing (Pitch + App starten). Keine extra Marketing-Sätze, die nicht in `FEATURES.md` stehen.
 3. Footer-Links zu Impressum/Datenschutz nicht entfernen.
 4. Nicht in `PLAN.md` duplizieren — PLAN ist Historie, FEATURES.md ist die Startseite.
 

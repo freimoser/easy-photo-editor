@@ -1,5 +1,7 @@
 # Easy Photo Editor
 
-Browser-Editor für Fotoabzüge (dm, Photobook, eigene Maße). Läuft auf GitHub Pages, ohne Server.
+Browser-Editor für Fotoabzüge (dm, Photobook, eigene cm-Maße). Collagen im Browser, JPEG fürs Labor, kein Upload.
 
-Startseite-Texte: `FEATURES.md` (bei Feature-Änderungen mitziehen).
+**App:** https://freemoser.github.io/easy-photo-editor/
+
+Landing-Texte kurz halten. Ausführliche Funktionen: `FEATURES.md` → `app.html`.

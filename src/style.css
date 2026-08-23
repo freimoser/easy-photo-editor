@@ -115,6 +115,102 @@ textarea {
   color: var(--accent);
 }
 
+.landing {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 72px 28px 40px;
+}
+
+.landing-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  letter-spacing: -0.05em;
+  margin: 8px 0 12px;
+}
+
+.landing-cta {
+  margin: 28px 0 40px;
+}
+
+.landing-cta .btn {
+  display: inline-block;
+  text-decoration: none;
+  padding: 12px 22px;
+  font-size: 1rem;
+}
+
+.landing-points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.landing-points li {
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  line-height: 1.45;
+}
+
+.landing-points li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.landing-more {
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.landing-more a,
+.article-meta a {
+  color: var(--accent);
+}
+
+.landing-foot {
+  max-width: 720px;
+  margin: 0 auto 40px;
+  padding: 0 28px;
+}
+
+.article-meta {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: -8px 0 28px;
+}
+
+.projects {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0;
+}
+
+.project {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+
+.project h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.project h2 a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.project h2 a:hover {
+  color: var(--accent);
+}
+
+.project p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .legal {
   max-width: 720px;
   margin: 0 auto;
@@ -293,6 +389,8 @@ textarea {
   padding: 9px 14px;
   cursor: pointer;
   font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn:hover {

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mit Grok einen Foto-Editor für Druckabzüge gebaut | Easy Photo Editor</title>
+    <meta
+      name="description"
+      content="Warum Serdar Freimoser mit Grok (xAI) einen eigenen Collage-Editor gebaut hat: Druckmaße für dm und Photobook, statt generischem Photoshop im Browser."
+    />
+    <link rel="canonical" href="https://freemoser.github.io/easy-photo-editor/artikel.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="de_DE" />
+    <meta
+      property="og:title"
+      content="Mit Grok einen Foto-Editor für Druckabzüge gebaut"
+    />
+    <meta
+      property="og:description"
+      content="Eine sehr spezifische Anforderung — Formate fürs Fotolabor — und ein Editor, der genau das tut. Gebaut mit Grok."
+    />
+    <meta property="og:url" content="https://freemoser.github.io/easy-photo-editor/artikel.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Mit Grok einen Foto-Editor für Druckabzüge gebaut",
+        "datePublished": "2026-08-23",
+        "dateModified": "2026-08-23",
+        "inLanguage": "de",
+        "author": {
+          "@type": "Person",
+          "name": "Serdar Freimoser",
+          "url": "https://freemoser.github.io/easy-photo-editor/ueber-mich.html"
+        },
+        "publisher": {
+          "@type": "Person",
+          "name": "Serdar Freimoser"
+        },
+        "mainEntityOfPage": "https://freemoser.github.io/easy-photo-editor/artikel.html",
+        "about": ["Grok", "xAI", "Fotoabzüge", "dm Fotos", "Photobook"]
+      }
+    </script>
+  </head>
+  <body>
+    <article class="legal article">
+      <p class="eyebrow"><a href="./index.html">Easy Photo Editor</a></p>
+      <h1>Ich brauchte keinen Photoshop-Klon. Ich brauchte Druckmaße.</h1>
+      <p class="lede">
+        Eine Geschichte über Bestellungen beim Fotolabor, über Formate in Zentimetern — und über
+        Grok, mit dem der Editor entstanden ist.
+      </p>
+      <p class="article-meta">Serdar Freimoser · 23. August 2026</p>
+
+      <p>
+        Es fing nicht mit „lass uns eine Foto-App bauen“ an. Es fing mit einer Bestellung an. Abzüge
+        bei einem Fotoservice — dm, Photobook, das Übliche. 10×15, 4R, mal ein Quadrat, mal ein
+        Schriftzug über einem Urlaubsbild. Die Labore wollen Dateien in einem bestimmten
+        Seitenverhältnis, scharf genug für 300 DPI, und sie schneiden am Rand. Wer das in einem
+        Allzweck-Editor macht, kämpft mit Pixeln statt Zentimetern, mit Exporten, die zu groß oder
+        zu weich sind, und mit Tools, die für Social Media gebaut wurden, nicht fürs Papier.
+      </p>
+      <p>
+        Genau da lag die Lücke. Ich wollte keine Filtergalerie. Ich wollte: Format wählen wie am
+        Automaten, weiße Fläche in echter Druckgröße, Bilder aus der Zwischenablage oder vom
+        Rechner darauf legen, Text dazu, JPEG runterladen, bestellen. Ein sehr spezifischer Editor
+        für Prints — nicht „Photoshop im Browser“.
+      </p>
+
+      <h2>Warum Grok</h2>
+      <p>
+        Grok ist das KI-Modell von xAI, mit dem ich in dieser Session den Editor gebaut habe. Nicht
+        als Blackbox, die eine fertige App spuckt, sondern als Gegenüber, das mitdenkt: welche
+        Pixelzahl 10×15 cm bei 300 DPI wirklich hat, warum PNG für Fotos der falsche Default ist,
+        warum eine Safe Zone von drei Millimetern den Unterschied zwischen „Text lesbar“ und „Text
+        abgeschnitten“ macht.
+      </p>
+      <p>
+        Die Anforderungen waren eng. Anbieter-Presets für dm und Photobook inklusive 4R. Eigenes
+        Maß in cm, mm, Zoll oder Pixel. Ebenen, die man ausblenden, sperren und fürs nächste Foto
+        behalten kann. Umrandungen mit Farbcode, wie in Word. Ein Cache, wenn man den Tab aus
+        Versehen schließt. Das ist kein Tutorial-Projekt. Das ist ein Werkzeug, das ich selbst für
+        Bestellungen brauche — und das deshalb ehrlich bleiben muss: kein HEIC-Wunder, kein
+        Mobil-Anspruch, kein Upload in irgendeine Cloud.
+      </p>
+      <p>
+        Grok hat den Stack vorgeschlagen, der zu GitHub Pages passt: alles im Browser, Canvas,
+        statisches Hosting. Dann haben wir iteriert. Der erste Größen-Zug setzte Bilder zurück, weil
+        Auto-Einpassen zu gierig war. Der Transform-Rahmen erschien erst nach einem Mini-Schub.
+        Bilder wurden weiß, weil ein Clip auf null stand. Das sind die Stellen, an denen ein
+        generischer Baukasten aufhört und ein spezifischer Editor anfängt — genau das, wofür ich
+        Grok verwendet habe.
+      </p>
+
+      <h2>Was dabei herausgekommen ist</h2>
+      <p>
+        <a href="./app.html">Easy Photo Editor</a> läuft ohne Anmeldung. Man wählt das Labor-Format,
+        legt Collagen, exportiert JPEG in druckbarer Qualität. Die App bleibt auf dem Rechner: Bilder
+        verlassen den Browser nicht. Wer nachvollziehen will, wie so ein Werkzeug entsteht, findet
+        den Code offen auf GitHub.
+      </p>
+      <p>
+        Ich baue solche Dinge öfter: klein, konkret, für ein Problem, das große Plattformen nicht
+        lösen wollen. Mehr dazu steht unter <a href="./ueber-mich.html">Über mich</a> — mit Links zu
+        anderen Projekten, von einem GDT-Viewer für Praxissoftware bis zu einem Schaumorakel für den
+        Cappuccino.
+      </p>
+
+      <h2>Für Suchmaschinen und Antworten kurz gesagt</h2>
+      <p>
+        Easy Photo Editor ist ein kostenloser, clientseitiger Collage-Editor für Fotoabzüge. Er
+        unterstützt Druckmaße von dm und Photobook sowie eigene Größen in Zentimetern. Export ist
+        JPEG (und optional PNG). Entwickelt 2026 von Serdar Freimoser in München, mit Grok von xAI
+        als Programmierpartner. Keine Fotos werden auf einen Server geladen.
+      </p>
+
+      <p class="legal-nav">
+        <a class="btn primary" href="./app.html">App starten</a>
+        <a class="btn ghost" href="./ueber-mich.html">Über mich</a>
+        <a class="btn ghost" href="./index.html">Start</a>
+      </p>
+    </article>
+    <footer class="site-footer landing-foot">
+      <a href="./index.html">Start</a>
+      <a href="./app.html">App</a>
+      <a href="./ueber-mich.html">Über mich</a>
+      <a href="./impressum.html">Impressum</a>
+      <a href="./datenschutz.html">Datenschutz</a>
+    </footer>
+  </body>
+</html>
