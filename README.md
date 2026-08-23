@@ -44,6 +44,7 @@ Build für GitHub Pages: `npm run build` (Vite, statisch, Branch `main` → Acti
 | Projekt | Was es ist |
 | --- | --- |
 | [Easy Photo Editor](https://freemoser.github.io/easy-photo-editor/) | Dieser Editor — Druckcollagen für Fotoabzüge |
+| [Backlinkforme](https://backlinkforme.com/free-backlink-sites) | Kuratiertes Verzeichnis kostenloser Backlink-Sites, SEO-Tools und Guest Posts |
 | [Schaumorakel](https://schaumorakel.com/) | Cappuccino-Schaum deuten (Tasseografie im Browser) |
 | [Next Game Finder](https://nextgamefinder.org/) | Spielempfehlungen nach Laune, Zeit und Geschmack; Cross-Play und Couch-Co-op |
 | [Solvitalk](https://solvitalk.com/) | 25-Minuten-Gespräch beim Spazieren, Matching per Google Meet |
