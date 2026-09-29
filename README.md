@@ -2,7 +2,7 @@
 
 Kostenloser Collage-Editor im Browser für **Fotoabzüge**. Format wählen wie am Automaten (dm, Photobook, eigenes Maß in cm), Bilder und Text auf die Fläche legen, als **JPEG** fürs Fotolabor herunterladen. Keine Anmeldung, kein Upload.
 
-**Live:** [freemoser.github.io/easy-photo-editor](https://freemoser.github.io/easy-photo-editor/) · [App starten](https://freemoser.github.io/easy-photo-editor/app.html)
+**Live:** [freimoser.github.io/easy-photo-editor](https://freimoser.github.io/easy-photo-editor/) · [App starten](https://freimoser.github.io/easy-photo-editor/app.html)
 
 ## Features
 
@@ -19,14 +19,14 @@ Nicht enthalten: HEIC, Mobil-Layout, mehrseitige Fotobücher, Cloud-Speicher.
 
 ## Nutzung
 
-1. [App starten](https://freemoser.github.io/easy-photo-editor/app.html)
+1. [App starten](https://freimoser.github.io/easy-photo-editor/app.html)
 2. Anbieter und Format wählen (oder eigenes Maß)
 3. **Foto anlegen**
 4. Bilder und Text auf die weiße Fläche
 5. **JPEG** herunterladen und im Labor / Online-Shop bestellen
 6. **Gleiches Format** fürs nächste Abzug — oder **Neues Foto** für ein anderes Maß
 
-Hintergrund: [Artikel, wie der Editor mit Grok entstanden ist](https://freemoser.github.io/easy-photo-editor/artikel.html)
+Hintergrund: [Artikel, wie der Editor mit Grok entstanden ist](https://freimoser.github.io/easy-photo-editor/artikel.html)
 
 ## Entwicklung
 
@@ -39,15 +39,15 @@ Build für GitHub Pages: `npm run build` (Vite, statisch, Branch `main` → Acti
 
 ## Appendix: Über den Autor
 
-[Serdar Freimoser](https://freemoser.github.io/easy-photo-editor/ueber-mich.html), München. Kleine, genaue Web-Tools statt Allzweck-Suiten.
+[Serdar Freimoser](https://freimoser.github.io/easy-photo-editor/ueber-mich.html), München. Kleine, genaue Web-Tools statt Allzweck-Suiten.
 
 | Projekt | Was es ist |
 | --- | --- |
-| [Easy Photo Editor](https://freemoser.github.io/easy-photo-editor/) | Dieser Editor — Druckcollagen für Fotoabzüge |
+| [Easy Photo Editor](https://freimoser.github.io/easy-photo-editor/) | Dieser Editor — Druckcollagen für Fotoabzüge |
 | [Backlinkforme](https://backlinkforme.com/free-backlink-sites) | Kuratiertes Verzeichnis kostenloser Backlink-Sites, SEO-Tools und Guest Posts |
 | [Schaumorakel](https://schaumorakel.com/) | Cappuccino-Schaum deuten (Tasseografie im Browser) |
 | [Next Game Finder](https://nextgamefinder.org/) | Spielempfehlungen nach Laune, Zeit und Geschmack; Cross-Play und Couch-Co-op |
 | [Solvitalk](https://solvitalk.com/) | 25-Minuten-Gespräch beim Spazieren, Matching per Google Meet |
-| [GDT Viewer](https://freemoser.github.io/gdt-viewer/) | GDT 2.1 / 3.x lesen und Testdateien erzeugen, ohne Upload |
+| [GDT Viewer](https://freimoser.github.io/gdt-viewer/) | GDT 2.1 / 3.x lesen und Testdateien erzeugen, ohne Upload |
 
-Kontakt: [Impressum](https://freemoser.github.io/easy-photo-editor/impressum.html)
+Kontakt: [Impressum](https://freimoser.github.io/easy-photo-editor/impressum.html)
