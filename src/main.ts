@@ -592,12 +592,26 @@ function paint(): void {
   scheduleVersion();
 }
 
+/** Kurzes Label für die Editor-Leiste: Zahlen sinnvoll gerundet (cm 1 Nachkommastelle, mm/px ganzzahlig, Zoll 2). */
+function shortFormatLabel(label: string): string {
+  const unit = /\b(mm|px|in|Zoll)\b/.exec(label)?.[1] ?? "cm";
+  const digits = unit === "mm" || unit === "px" ? 0 : unit === "cm" ? 1 : 2;
+  return label.replace(/\d+(?:[.,]\d+)?/g, (n) => {
+    const v = Number(n.replace(",", ".")) + 1e-9;
+    return String(Number(v.toFixed(digits))).replace(".", ",");
+  });
+}
+
 function syncChrome(): void {
   if (!doc) return;
   const w = mmToPx(doc.widthMm, doc.dpi);
   const h = mmToPx(doc.heightMm, doc.dpi);
-  docTitle.textContent = `${doc.providerName} · ${doc.formatLabel}`;
-  docMeta.textContent = `${Math.round(doc.widthMm)} × ${Math.round(doc.heightMm)} mm · ${w} × ${h} px · ${doc.dpi} DPI`;
+  const full = `${doc.providerName} · ${doc.formatLabel} · ${Math.round(doc.widthMm)} × ${Math.round(doc.heightMm)} mm · ${w} × ${h} px · ${doc.dpi} DPI`;
+  docTitle.textContent = shortFormatLabel(doc.formatLabel);
+  docMeta.textContent = `${doc.providerName} · ${w} × ${h} px · ${doc.dpi} DPI`;
+  const brand = docTitle.parentElement!;
+  brand.title = full;
+  brand.setAttribute("aria-label", `Format: ${full}`);
   btnSafe.setAttribute("aria-pressed", String(doc.showSafeZone));
   btnAutoResize.setAttribute("aria-pressed", String(doc.autoResize));
   btnUndo.disabled = !history.canUndo;
