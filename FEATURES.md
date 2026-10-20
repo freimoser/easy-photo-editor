@@ -5,7 +5,7 @@ Ausführliche **So geht’s** und **Funktionen** stehen in `app.html` (`#how`, `
 
 Bei jeder nutzer-sichtbaren Änderung: zuerst hier, dann `app.html` angleichen. Skill: `.grok/skills/startseite-docs/SKILL.md`.
 
-Stand: 2026-08-23
+Stand: 2026-10-20
 
 ## Landing (index.html)
 
@@ -19,7 +19,7 @@ Stand: 2026-08-23
 2. Format wählen oder unter **Eigenes Format** Breite, Höhe, Einheit (cm / mm / Zoll / Pixel) und DPI setzen.
 3. **Foto anlegen** — weiße Fläche in Druckgröße (300 DPI bei Presets).
 4. Bilder per Drag & Drop, **Bilder**-Button oder **Strg+V** einfügen. Text über **Text**.
-5. Ebenen rechts: Reihenfolge, sichtbar, sperren, **★ behalten**. Fotos drehen, skalieren, umranden.
+5. Ebenen (Desktop rechts, Handy über **Ebenen** unten): Reihenfolge, sichtbar, sperren, **★ behalten**. Fotos drehen, skalieren, umranden.
 6. **JPEG** (Standard, Druck) oder **PNG** herunterladen. **Gleiches Format** startet das nächste Foto; **★**-Ebenen bleiben. **Neues Foto** bleibt in der App bei der Formatwahl, markierte Ebenen kommen mit.
 7. Arbeit bleibt im **Browser-Cache** (IndexedDB). Tab schließen fragt nach. **Verlauf** zeigt frühere Stände.
 
@@ -29,7 +29,8 @@ Stand: 2026-08-23
 - Eigenes Maß in cm, mm, Zoll oder Pixel plus DPI; Hoch/Quer tauschen
 - Safe Zone (3 mm, nur Anzeige)
 - Einpassen: beim Einfügen und bei 90°-Drehung aufs Format skalieren (abschaltbar)
-- Bilder: Drag & Drop, Datei-Dialog, Zwischenablage (JPEG, PNG, WebP, GIF — kein HEIC)
+- Bilder: Drag & Drop, Datei-Dialog, Zwischenablage, am Handy Fotomediathek oder Kamera (JPEG, PNG, WebP, GIF — kein HEIC)
+- Handy: Werkzeugleiste unten, Ebenen/Anpassen als Bottom-Sheet, mit zwei Fingern skalieren und drehen
 - Text: schreiben (Doppelklick), Größe, Farbe aus Palette, Picker oder Hex
 - Ebenen: nach vorne/hinten, ziehen, ein-/ausblenden, sperren, duplizieren, löschen
 - ★ Behalten: Ebene überlebt Gleiches Format und Neues Foto
@@ -44,6 +45,5 @@ Stand: 2026-08-23
 ## Bewusst nicht versprechen
 
 - HEIC / iPhone-Rohformat
-- Handy-Bedienung
 - Mehrseitiges Fotobuch
 - Speichern eines Projekts in der Cloud / auf einem Server (nur lokal im Browser)

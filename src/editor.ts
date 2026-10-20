@@ -20,6 +20,7 @@ type EditorHandlers = {
 };
 
 const MIN_SIZE = 8;
+const COARSE = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
 
 export class PhotoStage {
   private readonly container: HTMLDivElement;
@@ -96,10 +97,10 @@ export class PhotoStage {
       },
       anchorStroke: "#2563eb",
       anchorFill: "#ffffff",
-      anchorSize: 16,
+      anchorSize: COARSE ? 26 : 16,
       anchorCornerRadius: 3,
       borderStroke: "#2563eb",
-      rotateAnchorOffset: 28,
+      rotateAnchorOffset: COARSE ? 40 : 28,
     });
     this.overlayLayer.add(this.transformer);
 
@@ -116,6 +117,8 @@ export class PhotoStage {
       if (this.pageGroup.getChildren().some((n) => n.isDragging())) return;
       this.interacting = false;
     });
+
+    this.bindPinch();
 
     this.stage.on("dblclick dbltap", (e) => {
       const id = e.target.getAttr("layerId") as string | undefined;
@@ -153,7 +156,7 @@ export class PhotoStage {
     this.printW = mmToPx(doc.widthMm, doc.dpi);
     this.printH = mmToPx(doc.heightMm, doc.dpi);
 
-    const pad = 48;
+    const pad = this.stage.width() < 600 ? 14 : 48;
     const availW = Math.max(this.stage.width() - pad * 2, 80);
     const availH = Math.max(this.stage.height() - pad * 2, 80);
     this.scale = Math.min(availW / this.printW, availH / this.printH);
@@ -400,6 +403,78 @@ export class PhotoStage {
     this.transformer.forceUpdate();
   }
 
+  /** Open the inline text editor for a text layer (used by the "Text bearbeiten" button). */
+  editText(id: string): void {
+    const node = this.nodeById().get(id);
+    if (node instanceof Konva.Text) this.openTextEditor(id, node);
+  }
+
+  /** Two-finger pinch: scale + rotate the selected layer (images scale, text rotates). */
+  private bindPinch(): void {
+    let start: { dist: number; angle: number; w: number; h: number; rot: number } | null = null;
+    let node: Konva.Image | Konva.Text | null = null;
+    let id: string | null = null;
+    const read = (e: TouchEvent) => {
+      const [a, b] = [e.touches[0], e.touches[1]];
+      return {
+        dist: Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY),
+        angle: (Math.atan2(b.clientY - a.clientY, b.clientX - a.clientX) * 180) / Math.PI,
+      };
+    };
+    const el = this.container;
+    el.addEventListener(
+      "touchstart",
+      (e) => {
+        if (e.touches.length !== 2) return;
+        id = this.doc?.selectedId ?? null;
+        const layer = this.doc?.layers.find((l) => l.id === id);
+        node = id ? this.nodeById().get(id) ?? null : null;
+        if (!layer || !node || layer.locked || !layer.visible) {
+          node = null;
+          return;
+        }
+        e.preventDefault();
+        node.stopDrag();
+        const r = read(e);
+        start = { ...r, w: node.width(), h: node.height(), rot: node.rotation() };
+        this.interacting = true;
+        this.handlers.onHistoryCheckpoint();
+      },
+      { passive: false },
+    );
+    el.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!start || !node || e.touches.length !== 2) return;
+        e.preventDefault();
+        const r = read(e);
+        const k = Math.max(r.dist / start.dist, 0.05);
+        if (node instanceof Konva.Image) {
+          node.width(Math.max(start.w * k, MIN_SIZE));
+          node.height(Math.max(start.h * k, MIN_SIZE));
+          node.offsetX(node.width() / 2);
+          node.offsetY(node.height() / 2);
+        }
+        node.rotation(start.rot + (r.angle - start.angle));
+        this.transformer.forceUpdate();
+        this.contentLayer.batchDraw();
+        this.overlayLayer.batchDraw();
+      },
+      { passive: false },
+    );
+    const end = (e: TouchEvent) => {
+      if (!start || !node || !id || e.touches.length >= 2) return;
+      const n = node;
+      const lid = id;
+      start = null;
+      node = null;
+      this.interacting = false;
+      this.handlers.onGeometry(lid, this.readGeometry(n));
+    };
+    el.addEventListener("touchend", end);
+    el.addEventListener("touchcancel", end);
+  }
+
   private openTextEditor(id: string, node: Konva.Text): void {
     const textarea = document.createElement("textarea");
     const box = this.container.getBoundingClientRect();
@@ -411,7 +486,7 @@ export class PhotoStage {
       top: `${box.top + abs.y}px`,
       width: `${Math.max(abs.width, 80)}px`,
       height: `${Math.max(abs.height, 32)}px`,
-      font: `${node.fontSize()}px ${node.fontFamily()}`,
+      font: `${Math.max(node.fontSize(), 16)}px ${node.fontFamily()}`,
       color: node.fill() as string,
       lineHeight: "1.25",
       textAlign: node.align(),

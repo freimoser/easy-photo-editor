@@ -1,4 +1,4 @@
-import "./style.css";
+import "./site";
 import {
   clearAssets,
   forgetAsset,
@@ -87,6 +87,35 @@ const btnVersions = document.querySelector<HTMLButtonElement>("#btn-versions")!;
 const versionsEl = document.querySelector<HTMLDivElement>("#versions")!;
 const versionList = document.querySelector<HTMLUListElement>("#version-list")!;
 const versionsClose = document.querySelector<HTMLButtonElement>("#versions-close")!;
+const btnLayers = document.querySelector<HTMLButtonElement>("#btn-layers")!;
+const btnProps = document.querySelector<HTMLButtonElement>("#btn-props")!;
+const btnMore = document.querySelector<HTMLButtonElement>("#btn-more")!;
+const btnNew2 = document.querySelector<HTMLButtonElement>("#btn-new2")!;
+const btnCamera = document.querySelector<HTMLButtonElement>("#btn-camera")!;
+const cameraInput = document.querySelector<HTMLInputElement>("#camera-input")!;
+const emptyCta = document.querySelector<HTMLDivElement>("#empty-cta")!;
+const emptyAdd = document.querySelector<HTMLButtonElement>("#empty-add")!;
+const scrim = document.querySelector<HTMLDivElement>("#scrim")!;
+const customDetails = document.querySelector<HTMLDetailsElement>("#custom-details")!;
+
+type Sheet = "" | "layers" | "props" | "more" | "versions";
+const compactLayout = window.matchMedia("(max-width: 899px)");
+
+/** Mobile: genau ein Bottom-Sheet offen (Ebenen, Anpassen, Mehr, Verlauf). */
+function setSheet(next: Sheet): void {
+  const current = (editorEl.dataset.sheet ?? "") as Sheet;
+  const target = current === next ? "" : next;
+  editorEl.dataset.sheet = target;
+  versionsEl.classList.toggle("hidden", target !== "versions");
+  if (target === "versions") void renderVersionList();
+  scrim.hidden = !(target && (compactLayout.matches || target === "more" || target === "versions"));
+  btnLayers.setAttribute("aria-expanded", String(target === "layers"));
+  btnProps.setAttribute("aria-expanded", String(target === "props"));
+  btnMore.setAttribute("aria-expanded", String(target === "more"));
+  btnLayers.classList.toggle("active", target === "layers");
+  btnProps.classList.toggle("active", target === "props");
+  btnMore.classList.toggle("active", target === "more");
+}
 
 let providerId = providers[0].id;
 let formatId = providers[0].formats[1]?.id ?? providers[0].formats[0].id;
@@ -290,8 +319,9 @@ function renderSetup(): void {
   for (const p of providers) {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = `choice${p.id === providerId ? " active" : ""}`;
-    btn.innerHTML = `<strong>${p.name}</strong><span>${p.formats.length} Formate</span>`;
+    btn.className = `chip${p.id === providerId ? " active" : ""}`;
+    btn.setAttribute("aria-pressed", String(p.id === providerId));
+    btn.innerHTML = `<strong>${p.name}</strong><span>${p.formats.length}</span>`;
     btn.addEventListener("click", () => {
       providerId = p.id;
       if (!isCustomFormat(formatId)) formatId = p.formats[0].id;
@@ -306,6 +336,7 @@ function renderSetup(): void {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = `choice${format.id === formatId ? " active" : ""}`;
+    btn.setAttribute("aria-pressed", String(format.id === formatId));
     btn.innerHTML = `${paperThumb(land.widthMm / land.heightMm)}<strong>${format.label}</strong><span>${format.hint}</span>`;
     btn.addEventListener("click", () => {
       formatId = format.id;
@@ -319,9 +350,11 @@ function renderSetup(): void {
   const customBtn = document.createElement("button");
   customBtn.type = "button";
   customBtn.className = `choice${isCustomFormat(formatId) ? " active" : ""}`;
+  customBtn.setAttribute("aria-pressed", String(isCustomFormat(formatId)));
   customBtn.innerHTML = `${paperThumb(customRatio)}<strong>Eigenes Maß</strong><span>${parsed.ok ? parsed.label : "cm, mm, Zoll, Pixel"}</span>`;
   customBtn.addEventListener("click", () => {
     formatId = CUSTOM_FORMAT_ID;
+    customDetails.open = true;
     renderSetup();
   });
   formatList.appendChild(customBtn);
@@ -395,6 +428,8 @@ function openEditor(): void {
 function enterEditor(): void {
   setupEl.classList.add("hidden");
   editorEl.classList.remove("hidden");
+  document.documentElement.classList.add("in-editor");
+  setSheet("");
   if (!stage) {
     stage = new PhotoStage(stageHost, {
       onSelect: (id) => {
@@ -404,6 +439,7 @@ function enterEditor(): void {
         renderLayers();
         renderProps();
         stage?.setSelection(id);
+        syncChrome();
       },
       onHistoryCheckpoint: checkpoint,
       onGeometry: (id, geometry) => applyGeometry(id, geometry),
@@ -474,8 +510,10 @@ async function closeEditor(): Promise<void> {
   if (keptTemplate) pruneAssets(usedAssetIds(keptTemplate.layers));
   else clearAssets();
   doc = null;
+  setSheet("");
   editorEl.classList.add("hidden");
   setupEl.classList.remove("hidden");
+  document.documentElement.classList.remove("in-editor");
   resumePanel.classList.add("hidden");
   void persistNow();
 }
@@ -564,6 +602,9 @@ function syncChrome(): void {
   btnAutoResize.setAttribute("aria-pressed", String(doc.autoResize));
   btnUndo.disabled = !history.canUndo;
   btnRedo.disabled = !history.canRedo;
+  btnProps.disabled = !selected();
+  if (!selected() && editorEl.dataset.sheet === "props") setSheet("");
+  emptyCta.classList.toggle("hidden", doc.layers.length > 0);
 }
 
 function iconButton(title: string, text: string, onClick: () => void, disabled = false): HTMLButtonElement {
@@ -641,6 +682,7 @@ function renderLayers(): void {
       renderLayers();
       renderProps();
       stage?.setSelection(layer.id);
+      syncChrome();
     });
     li.addEventListener("dragstart", (e) => {
       const origin = e.target as HTMLElement;
@@ -694,7 +736,7 @@ function renderProps(): void {
           <button class="btn ghost" id="rot-right" type="button" title="90° nach rechts">90° ↻</button>
         </div>
         <label class="prop-row">Deckkraft
-          <input id="prop-opacity" type="range" min="0" max="100" value="${Math.round(layer.opacity * 100)}" />
+          <input id="prop-opacity" type="range" min="0" max="100" value="${Math.round(layer.opacity * 100)}" aria-label="Deckkraft in Prozent" />
         </label>
         <p class="prop-label">Umrandung</p>
         <label class="prop-row">Stärke
@@ -712,7 +754,7 @@ function renderProps(): void {
         ${swatchStackHtml(toHex(layer.stroke))}
         <div class="stroke-color">
           <label class="color-chip" title="Linienfarbe">
-            <input id="stroke-color" type="color" value="${toHex(layer.stroke)}" />
+            <input id="stroke-color" type="color" value="${toHex(layer.stroke)}" aria-label="Linienfarbe wählen" />
           </label>
           <input id="stroke-hex" type="text" value="${toHex(layer.stroke)}" maxlength="7" spellcheck="false" aria-label="Farbcode" />
         </div>`
@@ -726,15 +768,16 @@ function renderProps(): void {
           <button class="btn ghost" id="text-smaller" type="button">A−</button>
           <button class="btn ghost" id="text-bigger" type="button">A+</button>
           <label class="color-chip" title="Farbe">
-            <input id="prop-fill" type="color" value="${toHex(layer.fill)}" />
+            <input id="prop-fill" type="color" value="${toHex(layer.fill)}" aria-label="Textfarbe wählen" />
           </label>
         </div>
         ${swatchStackHtml(toHex(layer.fill))}
-        <p class="prop-hint">Doppelklick auf den Text zum Schreiben.</p>`
+        <button class="btn" id="text-edit" type="button">Text bearbeiten</button>
+        <p class="prop-hint">Oder Doppelklick / Doppeltipp auf den Text.</p>`
       : "";
 
   propsEl.innerHTML = `
-    <h3>${layer.name}</h3>
+    <h3>${escapeHtml(layer.name)}</h3>
     ${imageControls}
     ${textControls}
     <div class="prop-actions">
@@ -796,6 +839,10 @@ function renderProps(): void {
     layer.stroke = parsed;
     paint();
   });
+  propsEl.querySelector("#text-edit")?.addEventListener("click", () => {
+    setSheet("");
+    requestAnimationFrame(() => stage?.editText(layer.id));
+  });
   propsEl.querySelector("#text-smaller")?.addEventListener("click", () => bumpTextSize(1 / 1.15));
   propsEl.querySelector("#text-bigger")?.addEventListener("click", () => bumpTextSize(1.15));
   propsEl.querySelector("#prop-fill")?.addEventListener("change", (e) => {
@@ -808,6 +855,10 @@ function renderProps(): void {
   propsEl.querySelector("#prop-down")?.addEventListener("click", () => moveLayer(-1));
   propsEl.querySelector("#prop-dup")?.addEventListener("click", duplicateSelected);
   propsEl.querySelector("#prop-del")?.addEventListener("click", deleteSelected);
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
 function rotateSelected(degrees: number): void {
@@ -1024,8 +1075,8 @@ function onKey(e: KeyboardEvent): void {
     deleteSelected();
   }
   if (e.key === "Escape") {
-    if (!versionsEl.classList.contains("hidden")) {
-      versionsEl.classList.add("hidden");
+    if (editorEl.dataset.sheet) {
+      setSheet("");
       return;
     }
     doc.selectedId = null;
@@ -1081,7 +1132,29 @@ customSwap.addEventListener("click", () => {
 
 startBtn.addEventListener("click", openEditor);
 btnNew.addEventListener("click", () => void closeEditor());
-btnSame.addEventListener("click", () => void newPhotoSameSettings());
+btnNew2.addEventListener("click", () => {
+  setSheet("");
+  void closeEditor();
+});
+btnLayers.addEventListener("click", () => setSheet("layers"));
+btnProps.addEventListener("click", () => setSheet("props"));
+btnMore.addEventListener("click", () => setSheet("more"));
+scrim.addEventListener("click", () => setSheet(""));
+document.querySelectorAll(".sheet-close").forEach((b) => b.addEventListener("click", () => setSheet("")));
+emptyAdd.addEventListener("click", () => fileInput.click());
+btnCamera.addEventListener("click", () => {
+  setSheet("");
+  cameraInput.click();
+});
+cameraInput.addEventListener("change", () => {
+  const files = [...(cameraInput.files ?? [])];
+  cameraInput.value = "";
+  if (files.length) void addImageFiles(files);
+});
+btnSame.addEventListener("click", () => {
+  setSheet("");
+  void newPhotoSameSettings();
+});
 btnSafe.addEventListener("click", () => {
   if (!doc) return;
   doc.showSafeZone = !doc.showSafeZone;
@@ -1103,11 +1176,15 @@ fileInput.addEventListener("change", () => {
 });
 btnText.addEventListener("click", addText);
 btnJpeg.addEventListener("click", () => void doExport("jpeg"));
-btnPng.addEventListener("click", () => void doExport("png"));
+btnPng.addEventListener("click", () => {
+  setSheet("");
+  void doExport("png");
+});
 
 window.addEventListener("paste", onPaste);
 window.addEventListener("keydown", onKey);
 window.addEventListener("resize", () => stage?.resize());
+new ResizeObserver(() => stage?.resize()).observe(workspace);
 
 workspace.addEventListener("dragover", (e) => {
   e.preventDefault();
@@ -1159,17 +1236,14 @@ async function restoreVersion(id: string): Promise<void> {
   await hydrateBlobs();
   doc = record.doc;
   lastVersionKey = JSON.stringify(doc.layers);
-  versionsEl.classList.add("hidden");
+  setSheet("");
   paint();
   toast("Stand aus dem Verlauf geladen");
   void persistNow();
 }
 
-btnVersions.addEventListener("click", () => {
-  const open = versionsEl.classList.toggle("hidden") === false;
-  if (open) void renderVersionList();
-});
-versionsClose.addEventListener("click", () => versionsEl.classList.add("hidden"));
+btnVersions.addEventListener("click", () => setSheet("versions"));
+versionsClose.addEventListener("click", () => setSheet(""));
 
 resumeBtn.addEventListener("click", () => void resumeSession());
 resumeDiscard.addEventListener("click", () => {

@@ -2,8 +2,10 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <meta name="msvalidate.01" content="E1F30DEB311AAF5458907DB431B481AC" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0d12" />
     <title>Easy Photo Editor – Druckfertige Collagen für Fotoabzüge</title>
     <meta
       name="description"
@@ -22,7 +24,12 @@
       content="Format wählen, Bilder und Text auf die Fläche, JPEG für dm, Photobook oder das Labor. Läuft nur im Browser."
     />
     <meta property="og:url" content="https://freimoser.github.io/easy-photo-editor/" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://freimoser.github.io/easy-photo-editor/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Fertige Fotocollage als Abzug, erstellt mit dem Easy Photo Editor" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://freimoser.github.io/easy-photo-editor/og-image.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -49,7 +56,19 @@
     </script>
   </head>
   <body>
-    <main class="landing">
+    <a class="skip" href="#main">Zum Inhalt</a>
+    <header class="site-head">
+      <a class="brand" href="./index.html"><span class="logo-mark">EPE</span><span>Easy Photo Editor</span></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
+      <nav id="site-nav" class="site-nav" aria-label="Hauptnavigation">
+        <a href="./index.html" aria-current="page">Start</a>
+        <a href="./app.html">App</a>
+        <a href="./artikel.html">Artikel</a>
+        <a href="./ueber-mich.html">Über mich</a>
+        <a href="https://freimoser.de/projekte/" rel="noopener">Projekte</a>
+      </nav>
+    </header>
+    <main id="main" class="landing">
       <header class="landing-hero">
         <p class="eyebrow">Fürs Fotolabor, nicht für Photoshop-Abenteuer</p>
         <h1>Easy Photo Editor</h1>
@@ -60,6 +79,7 @@
         <p class="landing-cta">
           <a class="btn primary" href="./app.html">App starten</a>
         </p>
+        <img class="hero-img landing-img" src="./hero-collage.webp" width="717" height="547" alt="Beispiel: fertige Collage mit drei Fotos und dem Text „Sommer 2026“ als Fotoabzug" fetchpriority="high" />
       </header>
 
       <ul class="landing-points">
@@ -73,6 +93,16 @@
         ·
         <a href="./ueber-mich.html">Über mich</a>
       </p>
+
+      <section class="card about-dev" aria-labelledby="about-dev">
+        <h2 id="about-dev">Über den Entwickler</h2>
+        <p>Ich baue kleine, genaue Web-Apps, die ein konkretes Problem lösen – datensparsam und direkt im Browser. Standort: München / Remote.</p>
+        <p class="row-actions">
+          <a class="btn ghost" href="./ueber-mich.html">Mehr über mich</a>
+          <a class="btn ghost" href="https://freimoser.de/projekte/" rel="noopener">Alle Projekte</a>
+          <a class="btn ghost" href="https://www.linkedin.com/in/thomas-freimoser/" rel="noopener" target="_blank">LinkedIn</a>
+        </p>
+      </section>
     </main>
     <footer class="site-footer landing-foot">
       <a href="./app.html">App</a>
@@ -81,5 +111,6 @@
       <a href="./impressum.html">Impressum</a>
       <a href="./datenschutz.html">Datenschutz</a>
     </footer>
+      <script type="module" src="/src/site.ts"></script>
   </body>
 </html>
