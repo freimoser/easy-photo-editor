@@ -1,3 +1,5 @@
+@import '@fontsource-variable/inter/wght.css';
+
 :root {
   --bg: #f3f4f6;
   --bg-2: #ffffff;
@@ -14,7 +16,7 @@
   --danger-soft: #fdecec;
   --shadow: 0 10px 30px rgba(17, 19, 24, 0.06);
   --radius: 12px;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
   color-scheme: light;
 }
 

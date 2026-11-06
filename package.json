@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
     "konva": "^9.3.22"
   },
   "devDependencies": {
